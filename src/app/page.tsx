@@ -44,6 +44,29 @@ export default function Home() {
         </div>
       </header>
 
+      {/* Game Category Tags */}
+      <div className="bg-gray-100 py-4">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap gap-2 justify-center">
+            <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 hover:bg-game-primary hover:text-white transition-colors cursor-pointer">
+              🎮 Simulation Games
+            </span>
+            <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 hover:bg-game-primary hover:text-white transition-colors cursor-pointer">
+              ⚡ Physics Games
+            </span>
+            <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 hover:bg-game-primary hover:text-white transition-colors cursor-pointer">
+              👁️ First-Person
+            </span>
+            <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 hover:bg-game-primary hover:text-white transition-colors cursor-pointer">
+              😈 Dark Humor
+            </span>
+            <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 hover:bg-game-primary hover:text-white transition-colors cursor-pointer">
+              🏥 Surgery Simulator
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Game Area */}
       <section className="container mx-auto px-4 py-8">
         <div className="max-w-5xl mx-auto">
@@ -81,6 +104,13 @@ export default function Home() {
             Bob from your own surgical incompetence.
           </p>
           <p>
+            <strong>Sorry Bob</strong> is a <strong>3D physics-based surgery simulator</strong> where 
+            chaos meets comedy. Unlike traditional medical games that reward precision, Sorry Bob 
+            punishes steady hands and rewards creative problem-solving. Every operation becomes an 
+            unpredictable adventure where your biggest enemy isn't the patient's condition - it's 
+            your own clumsy virtual hands.
+          </p>
+          <p>
             <strong>Sorry Bob</strong> is a <strong>physics game</strong> unlike any other 
             <strong>surgery game</strong> you've played. As Nigel Burke, an overconfident surgeon with 
             impossibly clumsy hands, you must perform delicate medical procedures while fighting against 
@@ -89,12 +119,48 @@ export default function Home() {
             errors that will have you laughing - and crying - in equal measure.
           </p>
           <p>
+            The game's revolutionary control scheme requires you to independently manage each finger 
+            using <strong>A, W, E, R keys</strong>. This turns the simple act of picking up a scalpel 
+            into a technical odyssey. Want to grab a surgical tool? You'll need to position your hand, 
+            press the right finger keys in sequence, and hope physics doesn't betray you. The learning 
+            curve is steep, but mastery brings immense satisfaction - and plenty of laughter along the way.
+          </p>
+          <p>
             What makes <strong>Sorry Bob</strong> the ultimate <strong>surgery simulator</strong>? 
             Unlike typical medical games where you simply click to heal, this <strong>physics game</strong> 
             demands genuine skill and patience. You'll need to master the art of controlling each finger 
             independently (using A, W, E, R keys), precisely positioning your virtual hand with mouse 
             movements, and carefully coordinating grips to pick up surgical tools. The realistic physics 
             engine means objects tumble, roll, and bounce unpredictably - just like real surgery, but funnier.
+          </p>
+          <p>
+            The <strong>realistic physics engine</strong> means every tool behaves unpredictably. 
+            Scalpels slide off wet surfaces, hammers bounce off bones, and organs tumble off the 
+            operating table with alarming frequency. Gravity works against you, momentum carries 
+            tools into places they shouldn't go, and friction - or lack thereof - turns simple tasks 
+            into complex puzzles. This isn't just difficulty for difficulty's sake; it's authentic 
+            chaos simulation that makes every playthrough unique.
+          </p>
+          <p>
+            <strong>Time pressure</strong> adds another layer of intensity. Bob's blood bar depletes 
+            in real-time, forcing you to balance speed with caution. Rush, and you'll make fatal 
+            mistakes. Take too long, and Bob bleeds out while you're fumbling with a bone saw. 
+            This tension creates genuine stakes - you're not just fighting controls, you're racing 
+            against death itself.
+          </p>
+          <p>
+            The <strong>dark humor</strong> in Sorry Bob comes naturally from its mechanics. There's 
+            something hilariously tragic about accidentally dropping a hammer into your patient's 
+            open chest cavity, or watching a perfectly good kidney roll off the table and disappear 
+            under a cabinet. You'll apologize to Bob repeatedly - hence the game's name - as your 
+            well-intentioned surgeries go horribly, hilariously wrong.
+          </p>
+          <p>
+            Each <strong>failure becomes a learning experience</strong> wrapped in comedy. You'll 
+            develop genuine surgical strategies: stabilizing your grip before lifting tools, using 
+            gentle mouse movements to avoid wild swings, and knowing when to stop and let Bob's 
+            vitals recover. The skills translate - your tenth heart transplant will be noticeably 
+            smoother than your first, even if you still kill Bob more often than you'd like to admit.
           </p>
           <p>
             Why <strong>play free</strong> instead of buying expensive simulator games? 
@@ -113,6 +179,54 @@ export default function Home() {
             Just remember to apologize to Bob afterward - he's surprisingly understanding for someone who 
             keeps dying on the operating table.
           </p>
+        </div>
+      </section>
+
+      {/* Emergency Cases Section */}
+      <section className="bg-white rounded-lg shadow-lg p-8 container mx-auto px-4 max-w-4xl my-8">
+        <h2 className="text-3xl font-bold text-game-dark mb-6 flex items-center gap-3">
+          <span className="text-4xl">🚨</span>
+          Emergency Cases & Surgeries
+        </h2>
+        <p className="text-gray-700 text-lg mb-6">
+          Face a variety of life-or-death scenarios in <strong>Sorry Bob</strong>. Each surgery 
+          presents unique challenges that will test your skill, patience, and ability to laugh 
+          at your own incompetence:
+        </p>
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="border-l-4 border-red-500 pl-4">
+            <h3 className="text-xl font-bold text-game-dark mb-2">❤️ Heart Transplant</h3>
+            <p className="text-gray-700">
+              Replace Bob's failing heart before time runs out. Break through the ribcage carefully, 
+              extract the old heart without damaging surrounding tissue, and drop in the new one. 
+              One wrong move with the bone saw and Bob's blood bar hits zero! The heart is heavy and 
+              slippery - good luck getting it into the chest cavity without dropping it.
+            </p>
+          </div>
+          <div className="border-l-4 border-blue-500 pl-4">
+            <h3 className="text-xl font-bold text-game-dark mb-2">🧠 Brain Surgery</h3>
+            <p className="text-gray-700">
+              Perform delicate brain surgery with clumsy hands. Remove the tumor without damaging 
+              healthy tissue - precision is key, but your hands have other plans! The brain is 
+              sensitive; even small bumps can be fatal. One accidental hammer swing and it's game over.
+            </p>
+          </div>
+          <div className="border-l-4 border-purple-500 pl-4">
+            <h3 className="text-xl font-bold text-game-dark mb-2">🫘 Kidney Transplant</h3>
+            <p className="text-gray-700">
+              Extract the damaged kidney and implant a healthy donor organ. Sounds simple, right? 
+              Wrong. The kidneys are located deep in the abdominal cavity, surrounded by other organs 
+              you'd rather not puncture. Navigation is tricky, and there's barely enough room to maneuver.
+            </p>
+          </div>
+          <div className="border-l-4 border-green-500 pl-4">
+            <h3 className="text-xl font-bold text-game-dark mb-2">👁️ Eye Surgery</h3>
+            <p className="text-gray-700">
+              The most delicate procedure of all. One slip of the scalpel and Bob loses his sight 
+              forever. The eye socket is cramped, tools are awkward, and your hands won't stop 
+              shaking. This operation separates amateur surgeons from the truly masochistic.
+            </p>
+          </div>
         </div>
       </section>
 
