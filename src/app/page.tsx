@@ -431,25 +431,29 @@ export default function Home() {
               Play free online • No download required • Have fun!
             </p>
           </div>
-          <div className="flex items-center justify-center gap-2 mt-6">
-            <a
-              href="/terms-of-service"
-              className="text-gray-400 hover:text-white transition-colors text-sm"
-            >
-              Terms of Service
-            </a>
-            <span className="text-gray-400 text-sm">|</span>
-            <a
-              href="/privacy-policy"
-              className="text-gray-400 hover:text-white transition-colors text-sm"
-            >
-              Privacy Policy
-            </a>
+
+          {/* 法律文档链接 */}
+          <div className="mb-4">
+            <div className="flex justify-center gap-6 text-sm">
+              <a href="/terms-of-service" className="text-gray-400 hover:text-white transition-colors">
+                Terms of Service
+              </a>
+              <span className="text-gray-600">|</span>
+              <a href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">
+                Privacy Policy
+              </a>
+            </div>
           </div>
+
           <div className="text-sm text-gray-400 mt-6">
             <p>
-              © 2026 Sorry Bob. Game embedded from MiniPlay. 
-              This is a fan site for the popular surgery simulator game.
+              © 2026 Sorry Bob. Visit us at{' '}
+              <a href="https://sorrybob.net" className="text-white hover:underline">
+                sorrybob.net
+              </a>
+            </p>
+            <p className="mt-2">
+              Game embedded from MiniPlay. This is a fan site for the popular surgery simulator game.
             </p>
             <p className="mt-2">
               All game content belongs to their respective owners.
