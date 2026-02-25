@@ -431,6 +431,21 @@ export default function Home() {
               Play free online • No download required • Have fun!
             </p>
           </div>
+          <div className="flex items-center justify-center gap-2 mt-6">
+            <a
+              href="/terms-of-service"
+              className="text-gray-400 hover:text-white transition-colors text-sm"
+            >
+              Terms of Service
+            </a>
+            <span className="text-gray-400 text-sm">|</span>
+            <a
+              href="/privacy-policy"
+              className="text-gray-400 hover:text-white transition-colors text-sm"
+            >
+              Privacy Policy
+            </a>
+          </div>
           <div className="text-sm text-gray-400 mt-6">
             <p>
               © 2026 Sorry Bob. Game embedded from MiniPlay. 
