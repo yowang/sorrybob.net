@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { GoogleAnalytics } from '@next/third-parties/google'
+import Script from 'next/script'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -79,8 +79,20 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>{children}
-        <GoogleAnalytics gaId="G-PLCH5KVGLT" />
+      <body>
+        {children}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-PLCH5KVGLT"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-PLCH5KVGLT');
+          `}
+        </Script>
       </body>
     </html>
   )
