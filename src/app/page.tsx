@@ -31,7 +31,7 @@ export default function Home() {
       <header className="bg-gradient-to-r from-game-primary to-game-secondary text-white py-8 shadow-xl">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center gap-4">
-            <span className="text-5xl">🏥</span>
+            <img src="/logo.svg" alt="Sorry Bob Logo" className="w-16 h-16" />
             <div>
               <h1 className="text-4xl md:text-5xl font-bold">
                 Sorry Bob - Surgeon Simulator Online Free
