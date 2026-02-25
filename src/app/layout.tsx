@@ -16,11 +16,20 @@ export const metadata: Metadata = {
     siteName: 'Sorry Bob',
     type: 'website',
     locale: 'en_US',
+    images: [
+      {
+        url: 'https://sorrybob.net/logo.svg',
+        width: 1200,
+        height: 630,
+        alt: 'Sorry Bob - Surgeon Simulator',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Sorry Bob - Surgeon Simulator',
     description: 'Play free online now!',
+    images: ['https://sorrybob.net/logo.svg'],
   },
   robots: {
     index: true,
@@ -50,10 +59,11 @@ export default function RootLayout({
               "@type": "VideoGame",
               "name": "Sorry Bob - Surgeon Simulator",
               "description": "A hilarious physics-based surgery simulator where you control clumsy surgeon hands to perform operations.",
-              "genre": ["Simulation", "Comedy", "Physics"],
+              "genre": ["Simulation", "Action", "Comedy"],
+              "gamePlatform": "Web Browser",
               "playMode": "SinglePlayer",
               "applicationCategory": "Game",
-              "operatingSystem": "Web Browser",
+              "operatingSystem": "Any",
               "offers": {
                 "@type": "Offer",
                 "price": "0",
