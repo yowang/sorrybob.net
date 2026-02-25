@@ -2,21 +2,25 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Sorry Bob - Play Surgeon Simulator Online Free 2026',
-  description: 'Play Sorry Bob free online! A hilarious physics-based surgery simulator. Control clumsy surgeon hands and perform operations. No download required.',
-  keywords: 'sorry bob, surgeon simulator, free game, online game, physics game, surgery game',
-  authors: [{ name: 'Sorry Bob' }],
+  title: 'Sorry Bob - 3D Physics-Based Surgery Simulator | Play Free Online',
+  description: 'Play Sorry Bob, a hilarious 3D physics-based surgery simulator with dark humor. Control clumsy surgeon hands, perform emergency operations, and save Bob! Free online, no download required.',
+  keywords: 'Sorry Bob, surgery simulator, physics game, dark humor game, emergency surgery, free online game, browser game, 3D physics',
+  authors: [{ name: 'Sorry Bob Team' }],
+  alternates: {
+    canonical: 'https://sorrybob.net/',
+  },
   openGraph: {
-    title: 'Sorry Bob - Play Surgeon Simulator Online Free 2026',
-    description: 'Play Sorry Bob free online! A hilarious physics-based surgery simulator. Control clumsy surgeon hands and perform operations. No download required.',
+    title: 'Sorry Bob - Surgeon Simulator Online Free',
+    description: 'Play Sorry Bob, a hilarious 3D physics-based surgery simulator with dark humor. Control clumsy surgeon hands, perform emergency operations, and save Bob! Free online, no download required.',
+    url: 'https://sorrybob.net/',
+    siteName: 'Sorry Bob',
     type: 'website',
     locale: 'en_US',
-    siteName: 'Sorry Bob',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Sorry Bob - Play Surgeon Simulator Online Free 2026',
-    description: 'Play Sorry Bob free online! A hilarious physics-based surgery simulator.',
+    title: 'Sorry Bob - Surgeon Simulator',
+    description: 'Play free online now!',
   },
   robots: {
     index: true,
