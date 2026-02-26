@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentry Error Test - Sorry Bob</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .test-card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .test-card h3 {
+      margin-top: 0;
+      color: #333;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .error {
+      color: #dc3545;
+      font-weight: bold;
+    }
+    .success {
+      color: #28a745;
+      font-weight: bold;
+    }
+    .note {
+      background: #fff3cd;
+      padding: 10px;
+      border-radius: 4px;
+      border-left: 4px solid #ffc107;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 Sentry Error Tracking Test</h1>
+  <p>This page helps you test if Sentry is properly configured for sorrybob.net</p>
+
+  <div class="note">
+    <strong>Note:</strong> Open browser DevTools (F12) to see console output and verify errors are being captured.
+  </div>
+
+  <div class="test-card">
+    <h3>Test 1: Uncaught Error</h3>
+    <p>Triggers an uncaught JavaScript error.</p>
+    <button onclick="testUncaughtError()">Throw Error</button>
+    <div id="test1-result"></div>
+  </div>
+
+  <div class="test-card">
+    <h3>Test 2: Promise Rejection</h3>
+    <p>Triggers an unhandled Promise rejection.</p>
+    <button onclick="testPromiseRejection()">Reject Promise</button>
+    <div id="test2-result"></div>
+  </div>
+
+  <div class="test-card">
+    <h3>Test 3: Console Error</h3>
+    <p>Logs an error to console.error().</p>
+    <button onclick="testConsoleError()">Log Error</button>
+    <div id="test3-result"></div>
+  </div>
+
+  <div class="test-card">
+    <h3>Test 4: Custom Sentry Event</h3>
+    <p>Sends a custom event to Sentry using the SDK.</p>
+    <button onclick="testCustomEvent()">Send Event</button>
+    <div id="test4-result"></div>
+  </div>
+
+  <div class="test-card">
+    <h3>Test 5: Performance Monitoring</h3>
+    <p>Simulates a slow operation for performance tracking.</p>
+    <button onclick="testPerformance()">Start Performance Test</button>
+    <div id="test5-result"></div>
+  </div>
+
+  <div class="note">
+    <strong>Next Steps:</strong><br>
+    1. Run tests above<br>
+    2. Check browser console for errors<br>
+    3. Go to <a href="https://sentry.io" target="_blank">Sentry Dashboard</a><br>
+    4. Verify errors appear in your project
+  </div>
+
+  <script>
+    function setResult(id, message, isSuccess) {
+      const result = document.getElementById(id);
+      result.innerHTML = `<span class="${isSuccess ? 'success' : 'error'}">${message}</span>`;
+    }
+
+    function testUncaughtError() {
+      setResult('test1-result', 'Error thrown! Check console and Sentry.', false);
+      throw new Error('Sentry Test: Uncaught Error from sorrybob.net');
+    }
+
+    function testPromiseRejection() {
+      setResult('test2-result', 'Promise rejected! Check console and Sentry.', false);
+      Promise.reject('Sentry Test: Unhandled Promise Rejection from sorrybob.net');
+    }
+
+    function testConsoleError() {
+      console.error('Sentry Test: Console Error from sorrybob.net', {
+        timestamp: new Date().toISOString(),
+        page: window.location.href,
+        userAgent: navigator.userAgent
+      });
+      setResult('test3-result', 'Console error logged! Check console and Sentry.', true);
+    }
+
+    async function testCustomEvent() {
+      if (typeof Sentry === 'undefined') {
+        setResult('test4-result', 'Sentry SDK not loaded!', false);
+        return;
+      }
+
+      try {
+        Sentry.captureMessage('Sentry Test: Custom Event from sorrybob.net', {
+          level: 'info',
+          extra: {
+            testTime: new Date().toISOString(),
+            testType: 'manual-trigger'
+          }
+        });
+        setResult('test4-result', 'Custom event sent! Check Sentry Dashboard.', true);
+      } catch (error) {
+        setResult('test4-result', `Error: ${error.message}`, false);
+      }
+    }
+
+    async function testPerformance() {
+      if (typeof Sentry === 'undefined') {
+        setResult('test5-result', 'Sentry SDK not loaded!', false);
+        return;
+      }
+
+      const transaction = Sentry.startTransaction({
+        name: 'test-performance',
+        op: 'test'
+      });
+
+      // Simulate slow operation
+      const span = transaction.startChild({
+        op: 'slow-operation',
+        description: 'Simulated slow API call'
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      span.finish();
+      transaction.finish();
+
+      setResult('test5-result', 'Performance transaction recorded! Check Sentry.', true);
+    }
+
+    // Log initialization
+    console.log('Sentry Test Page loaded');
+    if (typeof Sentry !== 'undefined') {
+      console.log('✅ Sentry SDK is loaded');
+    } else {
+      console.warn('⚠️ Sentry SDK not found - check configuration');
+    }
+  </script>
+</body>
+</html>
