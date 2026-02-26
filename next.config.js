@@ -1,5 +1,3 @@
-const { withSentryConfig } = require('@sentry/nextjs');
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
@@ -9,16 +7,40 @@ const nextConfig = {
   },
 }
 
-// Sentry configuration for static export
-const sentryWebpackPluginOptions = {
-  // Additional config options for the Sentry Webpack plugin. Keep in mind that
-  // the Sentry plugin automatically handles source maps for you.
-  silent: true, // Suppresses all logs
-  org: 'sorrybob', // Your Sentry organization
-  project: 'sorrybob-net', // Your Sentry project name
-  // Only enable source map upload in production
-  authToken: process.env.SENTRY_AUTH_TOKEN,
+// Conditional Sentry integration
+// Only enable Sentry if the package is installed and DSN is provided
+const withSentryConfig = () => {
+  try {
+    // Check if @sentry/nextjs is installed
+    require.resolve('@sentry/nextjs');
+    
+    // Check if DSN is provided
+    const hasDSN = process.env.NEXT_PUBLIC_SENTRY_DSN && 
+                   process.env.NEXT_PUBLIC_SENTRY_DSN !== 'https://your-dsn@sentry.io/project-id';
+    
+    if (!hasDSN) {
+      console.log('⚠️  Sentry DSN not configured. Skipping Sentry integration.');
+      console.log('ℹ️  To enable Sentry, set NEXT_PUBLIC_SENTRY_DSN in your .env.local');
+      return (config) => config;
+    }
+    
+    const { withSentryConfig } = require('@sentry/nextjs');
+    
+    const sentryWebpackPluginOptions = {
+      silent: true,
+      org: 'sorrybob',
+      project: 'sorrybob-net',
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+    };
+    
+    console.log('✅ Sentry integration enabled');
+    return (config) => withSentryConfig(config, sentryWebpackPluginOptions);
+  } catch (e) {
+    // @sentry/nextjs not installed
+    console.log('⚠️  @sentry/nextjs not installed. Skipping Sentry integration.');
+    console.log('ℹ️  To enable Sentry: npm install @sentry/nextjs');
+    return (config) => config;
+  }
 };
 
-// Wrap with Sentry config
-module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);
+module.exports = withSentryConfig()(nextConfig);
