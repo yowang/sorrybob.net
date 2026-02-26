@@ -1,6 +1,8 @@
 // This file configures the initialization of Sentry on the client side.
 // The config you add here will be used whenever a users loads a page and their browser loads
 // the client-side JavaScript bundle.
+//
+// IMPORTANT: Rename this file to sentry.client.config.ts after installing @sentry/nextjs
 
 import * as Sentry from '@sentry/nextjs';
 
