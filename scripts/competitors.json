@@ -1,0 +1,22 @@
+{
+  "competitors": [
+    {
+      "name": "KBH Games",
+      "url": "https://kbhgames.com",
+      "category": "game-portal",
+      "monitorFrequency": "weekly"
+    },
+    {
+      "name": "Crazy Games",
+      "url": "https://www.crazygames.com",
+      "category": "game-portal",
+      "monitorFrequency": "weekly"
+    },
+    {
+      "name": "Zap Games",
+      "url": "https://zapgames.io",
+      "category": "game-portal",
+      "monitorFrequency": "weekly"
+    }
+  ]
+}
