@@ -24,9 +24,25 @@ export default function Home() {
       answer: 'Progress is typically saved automatically in your browser session. For persistent saves, check the game menu for save options.'
     },
   ]
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  }
 
   return (
     <main className="min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       {/* Header */}
       <header className="bg-gradient-to-r from-game-primary to-game-secondary text-white py-8 shadow-xl">
         <div className="container mx-auto px-4">
@@ -109,6 +125,27 @@ export default function Home() {
             punishes steady hands and rewards creative problem-solving. Every operation becomes an 
             unpredictable adventure where your biggest enemy isn't the patient's condition - it's 
             your own clumsy virtual hands.
+          </p>
+          <p>
+            If you enjoy classic{' '}
+            <a
+              href="https://en.wikipedia.org/wiki/Simulation_video_game"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-game-primary underline hover:text-game-secondary"
+            >
+              simulation video games
+            </a>{' '}
+            and the tech behind{' '}
+            <a
+              href="https://en.wikipedia.org/wiki/Physics_engine"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-game-primary underline hover:text-game-secondary"
+            >
+              physics engines
+            </a>
+            , Sorry Bob leans all the way into both.
           </p>
           <p>
             <strong>Sorry Bob</strong> is a <strong>physics game</strong> unlike any other 
@@ -411,7 +448,7 @@ export default function Home() {
               >
                 <summary className="px-6 py-4 font-semibold text-game-dark cursor-pointer hover:bg-gray-50 flex items-center gap-3">
                   <span className="text-2xl">→</span>
-                  {faq.question}
+                  <h3 className="text-lg font-semibold text-left">{faq.question}</h3>
                 </summary>
                 <div className="px-6 py-4 bg-gray-50 text-gray-700">
                   {faq.answer}
@@ -442,6 +479,10 @@ export default function Home() {
               <a href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">
                 Privacy Policy
               </a>
+              <span className="text-gray-600">|</span>
+              <a href="/faq" className="text-gray-400 hover:text-white transition-colors">
+                FAQ
+              </a>
             </div>
           </div>
 
@@ -454,6 +495,18 @@ export default function Home() {
             </p>
             <p className="mt-2">
               Game embedded from MiniPlay. This is a fan site for the popular surgery simulator game.
+            </p>
+            <p className="mt-2">
+              Learn more about the genre on{' '}
+              <a
+                href="https://en.wikipedia.org/wiki/Simulation_video_game"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white hover:underline"
+              >
+                Wikipedia&apos;s simulation video game overview
+              </a>
+              .
             </p>
             <p className="mt-2">
               All game content belongs to their respective owners.
