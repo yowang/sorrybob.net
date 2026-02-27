@@ -46,8 +46,10 @@ function getMockData() {
             sum: {
               requests: Math.floor(1000 + Math.random() * 500),
               pageViews: Math.floor(300 + Math.random() * 200),
-              visitors: Math.floor(100 + Math.random() * 80),
               bytes: Math.floor(5000000 + Math.random() * 2000000)
+            },
+            uniq: {
+              uniques: Math.floor(100 + Math.random() * 80)
             }
           }))
         }]
@@ -61,7 +63,7 @@ function buildQuery() {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const dateFilter = sevenDaysAgo.toISOString().split('T')[0];
-  
+
   return `
     query {
       viewer {
@@ -77,8 +79,10 @@ function buildQuery() {
             sum {
               requests
               pageViews
-              visitors
               bytes
+            }
+            uniq {
+              uniques
             }
           }
         }
@@ -179,9 +183,9 @@ function generateReport(data) {
   }
   report += '\n';
   
-  report += `- 访客数: **${latest.sum.visitors.toLocaleString()}**`;
+  report += `- 访客数: **${latest.uniq.uniques.toLocaleString()}**`;
   if (previous) {
-    report += ` (${calculateChange(latest.sum.visitors, previous.sum.visitors)})`;
+    report += ` (${calculateChange(latest.uniq.uniques, previous.uniq.uniques)})`;
   }
   report += '\n';
   
@@ -191,14 +195,14 @@ function generateReport(data) {
   // 计算周统计
   const weekStats = groups.reduce((acc, g) => ({
     pageViews: acc.pageViews + g.sum.pageViews,
-    visitors: acc.visitors + g.sum.visitors,
+    uniques: acc.uniques + (g.uniq ? g.uniq.uniques : 0),
     requests: acc.requests + g.sum.requests,
     bytes: acc.bytes + g.sum.bytes
-  }), { pageViews: 0, visitors: 0, requests: 0, bytes: 0 });
-  
+  }), { pageViews: 0, uniques: 0, requests: 0, bytes: 0 });
+
   report += `**📊 本周汇总** (7 天)\n`;
   report += `- 总页面浏览: ${weekStats.pageViews.toLocaleString()}\n`;
-  report += `- 总访客数: ${weekStats.visitors.toLocaleString()}\n`;
+  report += `- 总访客数: ${weekStats.uniques.toLocaleString()}\n`;
   report += `- 总请求数: ${weekStats.requests.toLocaleString()}\n`;
   report += `- 总流量: ${(weekStats.bytes / 1024 / 1024).toFixed(2)} MB\n\n`;
   
