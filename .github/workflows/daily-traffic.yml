@@ -25,8 +25,8 @@ jobs:
       - name: Generate traffic report
         run: node scripts/daily-traffic-report.js
         env:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ZONE_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
 
       - name: Upload report artifact
