@@ -77,6 +77,7 @@ export default function GameEmbed() {
           key={currentSource}
           src={gameSources[currentSource]}
           title="Sorry Bob - Surgeon Simulator"
+          loading="lazy"
           allow="autoplay; fullscreen; gamepad"
           allowFullScreen
           className="border-0 absolute top-0 left-0 w-full h-full"

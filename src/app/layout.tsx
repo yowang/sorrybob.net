@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     locale: 'en_US',
     images: [
       {
-        url: 'https://sorrybob.net/logo.svg',
+        url: 'https://sorrybob.net/og-image.png',
         width: 1200,
         height: 630,
         alt: 'Sorry Bob - Surgeon Simulator',
@@ -29,8 +29,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Sorry Bob - Surgeon Simulator',
-    description: 'Play free online now!',
-    images: ['https://sorrybob.net/logo.svg'],
+    description: 'Play Sorry Bob, a hilarious 3D physics-based surgery simulator with dark humor. Control clumsy surgeon hands, perform emergency operations, and save Bob! Free online, no download required.',
+    images: ['https://sorrybob.net/og-image.png'],
   },
   robots: {
     index: true,
@@ -69,11 +69,6 @@ export default function RootLayout({
                 "@type": "Offer",
                 "price": "0",
                 "priceCurrency": "USD"
-              },
-              "aggregateRating": {
-                "@type": "AggregateRating",
-                "ratingValue": "4.5",
-                "ratingCount": "1250"
               }
             })
           }}
