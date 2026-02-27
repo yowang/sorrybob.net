@@ -19,9 +19,49 @@ const path = require('path');
 
 // Cloudflare Analytics API 配置
 const CF_API_TOKEN = process.env.CF_API_TOKEN;
-const CF_ZONE_ID = process.env.CF_ZONE_ID;
+let CF_ZONE_ID = process.env.CF_ZONE_ID;
+const CF_ACCOUNT_ID = process.env.CF_ACCOUNT_ID;
 const FEISHU_WEBHOOK_URL = process.env.FEISHU_WEBHOOK_URL;
 const USE_MOCK = process.argv.includes('--mock');
+
+// 从 Cloudflare API 获取 Zone ID
+async function fetchZoneId() {
+  if (!CF_API_TOKEN || !CF_ACCOUNT_ID) {
+    return null;
+  }
+
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: 'api.cloudflare.com',
+      path: `/client/v4/zones?account.id=${CF_ACCOUNT_ID}`,
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${CF_API_TOKEN}`,
+        'Content-Type': 'application/json'
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let body = '';
+      res.on('data', (chunk) => body += chunk);
+      res.on('end', () => {
+        try {
+          const result = JSON.parse(body);
+          if (result.success && result.result && result.result.length > 0) {
+            resolve(result.result[0].id);
+          } else {
+            resolve(null);
+          }
+        } catch (err) {
+          resolve(null);
+        }
+      });
+    });
+
+    req.on('error', () => resolve(null));
+    req.end();
+  });
+}
 
 // 获取日期范围（过去 7 天）
 function getDateRange() {
@@ -98,10 +138,28 @@ async function fetchAnalytics() {
     return getMockData();
   }
 
-  if (!CF_API_TOKEN || !CF_ZONE_ID) {
+  if (!CF_API_TOKEN) {
     console.error('❌ 缺少环境变量：');
-    console.error('   - CF_API_TOKEN: ' + (CF_API_TOKEN ? '✓' : '✗'));
-    console.error('   - CF_ZONE_ID: ' + (CF_ZONE_ID ? '✓' : '✗'));
+    console.error('   - CF_API_TOKEN: ✗');
+    console.error('\n💡 使用 --mock 参数测试脚本，或设置环境变量');
+    process.exit(1);
+  }
+
+  // 如果没有 CF_ZONE_ID，尝试从 CF_ACCOUNT_ID 获取
+  if (!CF_ZONE_ID && CF_ACCOUNT_ID) {
+    console.log('🔍 正在从 Cloudflare API 获取 Zone ID...');
+    CF_ZONE_ID = await fetchZoneId();
+    if (CF_ZONE_ID) {
+      console.log(`✅ 获取到 Zone ID: ${CF_ZONE_ID}\n`);
+    } else {
+      console.error('❌ 无法获取 Zone ID');
+    }
+  }
+
+  if (!CF_ZONE_ID) {
+    console.error('❌ 缺少环境变量：');
+    console.error('   - CF_ZONE_ID: ✗');
+    console.error('   - 或 CF_ACCOUNT_ID: ' + (CF_ACCOUNT_ID ? '✓' : '✗'));
     console.error('\n💡 使用 --mock 参数测试脚本，或设置环境变量');
     process.exit(1);
   }
