@@ -57,6 +57,26 @@ export default function Home() {
               </p>
             </div>
           </div>
+          <nav className="mt-6 flex flex-wrap items-center justify-center gap-3 text-sm">
+            <a
+              href="/tips"
+              className="px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 transition-colors"
+            >
+              Tips &amp; Tricks
+            </a>
+            <a
+              href="/surgery-types"
+              className="px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 transition-colors"
+            >
+              Surgery Types
+            </a>
+            <a
+              href="/faq"
+              className="px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 transition-colors"
+            >
+              FAQ
+            </a>
+          </nav>
         </div>
       </header>
 
@@ -216,6 +236,74 @@ export default function Home() {
             Just remember to apologize to Bob afterward - he's surprisingly understanding for someone who 
             keeps dying on the operating table.
           </p>
+        </div>
+
+        <div className="mt-8">
+          <h3 className="text-2xl font-bold text-game-dark mb-4">Gameplay Screenshot Previews</h3>
+          <div className="grid md:grid-cols-3 gap-4">
+            <figure
+              role="img"
+              aria-label="Screenshot placeholder showing heart transplant surgery setup and tool tray"
+              className="rounded-xl border border-gray-200 bg-gradient-to-br from-slate-800 to-slate-900 p-4 shadow-md"
+            >
+              <div className="h-36 rounded-lg border border-white/15 bg-gradient-to-br from-rose-900/70 via-red-800/55 to-orange-700/40 p-3 flex flex-col justify-between">
+                <div className="flex gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-rose-300/80" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-300/80" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-300/80" />
+                </div>
+                <div className="flex items-center justify-between text-white/85">
+                  <span className="text-2xl">❤️</span>
+                  <span className="text-xs uppercase tracking-wide">Heart Case</span>
+                </div>
+              </div>
+              <figcaption className="text-sm text-gray-600 mt-2">
+                Placeholder: Heart transplant procedure view
+              </figcaption>
+            </figure>
+
+            <figure
+              role="img"
+              aria-label="Screenshot placeholder showing close-up brain surgery precision tools"
+              className="rounded-xl border border-gray-200 bg-gradient-to-br from-slate-800 to-slate-900 p-4 shadow-md"
+            >
+              <div className="h-36 rounded-lg border border-white/15 bg-gradient-to-br from-sky-900/70 via-cyan-800/55 to-teal-700/45 p-3 flex flex-col justify-between">
+                <div className="flex gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-cyan-300/80" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-300/80" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-300/80" />
+                </div>
+                <div className="flex items-center justify-between text-white/85">
+                  <span className="text-2xl">🧠</span>
+                  <span className="text-xs uppercase tracking-wide">Brain Op</span>
+                </div>
+              </div>
+              <figcaption className="text-sm text-gray-600 mt-2">
+                Placeholder: Brain surgery precision challenge
+              </figcaption>
+            </figure>
+
+            <figure
+              role="img"
+              aria-label="Screenshot placeholder showing chaotic operating table during emergency surgery"
+              className="rounded-xl border border-gray-200 bg-gradient-to-br from-slate-800 to-slate-900 p-4 shadow-md"
+            >
+              <div className="h-36 rounded-lg border border-white/15 bg-gradient-to-br from-violet-900/70 via-fuchsia-800/55 to-pink-700/45 p-3 flex flex-col justify-between">
+                <div className="flex gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-fuchsia-300/80" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-orange-300/80" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-lime-300/80" />
+                </div>
+                <div className="flex items-center justify-between text-white/85">
+                  <span className="text-2xl">🎮</span>
+                  <span className="text-xs uppercase tracking-wide">Chaos Run</span>
+                </div>
+              </div>
+              <figcaption className="text-sm text-gray-600 mt-2">
+                Placeholder: Emergency operation gameplay scene
+              </figcaption>
+            </figure>
+          </div>
         </div>
       </section>
 
@@ -471,17 +559,21 @@ export default function Home() {
 
           {/* 法律文档链接 */}
           <div className="mb-4">
-            <div className="flex justify-center gap-6 text-sm">
+            <div className="flex flex-wrap justify-center gap-4 text-sm">
+              <a href="/tips" className="text-gray-400 hover:text-white transition-colors">
+                Tips &amp; Tricks
+              </a>
+              <a href="/surgery-types" className="text-gray-400 hover:text-white transition-colors">
+                Surgery Types
+              </a>
+              <a href="/faq" className="text-gray-400 hover:text-white transition-colors">
+                FAQ
+              </a>
               <a href="/terms-of-service" className="text-gray-400 hover:text-white transition-colors">
                 Terms of Service
               </a>
-              <span className="text-gray-600">|</span>
               <a href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">
                 Privacy Policy
-              </a>
-              <span className="text-gray-600">|</span>
-              <a href="/faq" className="text-gray-400 hover:text-white transition-colors">
-                FAQ
               </a>
             </div>
           </div>
