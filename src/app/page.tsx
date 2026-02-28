@@ -116,12 +116,6 @@ export default function Home() {
             </p>
           </div>
           <GameEmbed />
-        </div>
-      </section>
-
-      {/* Similar Games Section */}
-      <section className="container mx-auto px-4 pb-8">
-        <div className="max-w-6xl mx-auto">
           <SimilarGames />
         </div>
       </section>
