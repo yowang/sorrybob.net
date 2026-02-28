@@ -8,13 +8,77 @@ const GAME_SOURCES = [
   'https://geometry-games.io/sorry-bob',
   'https://www.gamenora.com/game/sorry-bob-surgeon-simulator/',
 ]
+const FULLSCREEN_HINT_KEY = 'sorrybob-fullscreen-hint-seen'
+
+type FullscreenCapableElement = HTMLDivElement & {
+  webkitRequestFullscreen?: () => Promise<void> | void
+}
+
+type FullscreenCapableDocument = Document & {
+  webkitExitFullscreen?: () => Promise<void> | void
+  webkitFullscreenElement?: Element | null
+}
 
 export default function GameEmbed() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [loadError, setLoadError] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [currentSource, setCurrentSource] = useState(0)
+  const [showFullscreenHint, setShowFullscreenHint] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  const dismissFullscreenHint = () => {
+    setShowFullscreenHint(false)
+    if (typeof window !== 'undefined') {
+      try {
+        window.localStorage.setItem(FULLSCREEN_HINT_KEY, '1')
+      } catch (_error) {
+        // Ignore localStorage write failures in private browsing contexts.
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      const hasSeenHint = window.localStorage.getItem(FULLSCREEN_HINT_KEY) === '1'
+      setShowFullscreenHint(!hasSeenHint)
+    } catch (_error) {
+      setShowFullscreenHint(true)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!showFullscreenHint) return
+    const timer = window.setTimeout(() => {
+      setShowFullscreenHint(false)
+      try {
+        window.localStorage.setItem(FULLSCREEN_HINT_KEY, '1')
+      } catch (_error) {
+        // Ignore localStorage write failures in private browsing contexts.
+      }
+    }, 9000)
+
+    return () => window.clearTimeout(timer)
+  }, [showFullscreenHint])
+
+  useEffect(() => {
+    const syncFullscreenState = () => {
+      const fullscreenDocument = document as FullscreenCapableDocument
+      const isDocumentFullscreen = Boolean(
+        document.fullscreenElement || fullscreenDocument.webkitFullscreenElement,
+      )
+      setIsFullscreen(isDocumentFullscreen)
+    }
+
+    document.addEventListener('fullscreenchange', syncFullscreenState)
+    document.addEventListener('webkitfullscreenchange', syncFullscreenState as EventListener)
+
+    return () => {
+      document.removeEventListener('fullscreenchange', syncFullscreenState)
+      document.removeEventListener('webkitfullscreenchange', syncFullscreenState as EventListener)
+    }
+  }, [])
 
   // Timeout detection - 10 seconds
   useEffect(() => {
@@ -39,16 +103,52 @@ export default function GameEmbed() {
     return () => clearTimeout(timeout)
   }, [currentSource, isLoading])
 
+  const enterFullscreen = async () => {
+    if (!containerRef.current) return false
+    const fullscreenElement = containerRef.current as FullscreenCapableElement
+
+    if (fullscreenElement.requestFullscreen) {
+      await fullscreenElement.requestFullscreen()
+      return true
+    }
+    if (fullscreenElement.webkitRequestFullscreen) {
+      await fullscreenElement.webkitRequestFullscreen()
+      return true
+    }
+
+    return false
+  }
+
+  const exitFullscreen = async () => {
+    const fullscreenDocument = document as FullscreenCapableDocument
+    if (document.exitFullscreen) {
+      await document.exitFullscreen()
+      return
+    }
+    if (fullscreenDocument.webkitExitFullscreen) {
+      await fullscreenDocument.webkitExitFullscreen()
+    }
+  }
+
+  const openSourceFallback = () => {
+    window.open(GAME_SOURCES[currentSource], '_blank', 'noopener,noreferrer')
+  }
+
   const toggleFullscreen = async () => {
-    if (!containerRef.current) return
+    dismissFullscreenHint()
+    const fullscreenDocument = document as FullscreenCapableDocument
+    const isDocumentFullscreen = Boolean(
+      document.fullscreenElement || fullscreenDocument.webkitFullscreenElement,
+    )
 
     try {
-      if (!document.fullscreenElement) {
-        await containerRef.current.requestFullscreen()
-        setIsFullscreen(true)
+      if (!isDocumentFullscreen) {
+        const enteredFullscreen = await enterFullscreen()
+        if (!enteredFullscreen) {
+          openSourceFallback()
+        }
       } else {
-        await document.exitFullscreen()
-        setIsFullscreen(false)
+        await exitFullscreen()
       }
     } catch (error) {
       Sentry.captureException(error, {
@@ -56,8 +156,14 @@ export default function GameEmbed() {
           component: 'GameEmbed',
           reason: 'fullscreen_toggle_failed',
         },
+        extra: {
+          sourceIndex: currentSource,
+          sourceUrl: GAME_SOURCES[currentSource],
+        },
       })
-      console.error('Fullscreen error:', error)
+      if (!isDocumentFullscreen) {
+        openSourceFallback()
+      }
     }
   }
 
@@ -112,12 +218,34 @@ export default function GameEmbed() {
           onLoad={handleIframeLoad}
           onError={handleIframeError}
         />
+      </div>
+
+      <div className="fullscreen-overlay">
+        {showFullscreenHint && (
+          <div className="fullscreen-hint" role="status" aria-live="polite">
+            <p className="fullscreen-hint-text">Tip: tap Fullscreen for a better mobile view.</p>
+            <button
+              type="button"
+              onClick={dismissFullscreenHint}
+              className="fullscreen-hint-dismiss"
+              aria-label="Dismiss fullscreen hint"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
         <button
+          type="button"
           onClick={toggleFullscreen}
-          className="fullscreen-btn"
+          className={`fullscreen-btn ${!isFullscreen ? 'fullscreen-btn-pulse' : ''}`}
           aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
         >
-          {isFullscreen ? '⤓ Exit Fullscreen' : '⤢ Fullscreen'}
+          <span className="fullscreen-btn-icon" aria-hidden="true">
+            {isFullscreen ? '⤓' : '⤢'}
+          </span>
+          <span className="fullscreen-btn-label">
+            {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+          </span>
         </button>
       </div>
       
@@ -126,7 +254,7 @@ export default function GameEmbed() {
           <p className="text-amber-800 mb-2">Game failed to load from this source</p>
           <button
             onClick={tryNextSource}
-            className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
+            className="touch-action-btn px-4 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:bg-amber-700 transition-colors"
           >
             Try Alternative Source
           </button>

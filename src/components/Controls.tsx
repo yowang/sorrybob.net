@@ -35,8 +35,8 @@ export default function Controls() {
   return (
     <section className="panel panel-narrow">
       <div className="panel-body">
-        <h2 className="text-2xl md:text-3xl font-bold text-game-dark mb-6 flex items-center gap-3">
-          <span className="text-4xl">🎮</span>
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-game-dark mb-5 md:mb-6 flex items-center gap-3">
+          <span className="text-3xl sm:text-4xl">🎮</span>
           Game Controls
         </h2>
 
@@ -55,7 +55,7 @@ export default function Controls() {
           ))}
         </div>
 
-        <div className="control-tip">
+        <div className="control-tip text-sm sm:text-base">
           <p>
             <span className="font-bold">💡 Pro Tip:</span> Practice makes perfect! The controls are
             intentionally clumsy to simulate a surgeon&apos;s challenging movements.

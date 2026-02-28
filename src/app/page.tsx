@@ -1,5 +1,6 @@
 import GameEmbed from '@/components/GameEmbed'
 import Controls from '@/components/Controls'
+import SimilarGames from '@/components/SimilarGames'
 
 export default function Home() {
   const faqs = [
@@ -49,10 +50,10 @@ export default function Home() {
           <div className="flex items-center justify-center gap-4">
             <img src="/logo.svg" alt="Sorry Bob Logo" className="w-16 h-16" />
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold">
                 Sorry Bob - Surgeon Simulator Online Free
               </h1>
-              <p className="text-xl mt-2 opacity-90">
+              <p className="text-base sm:text-lg md:text-xl mt-2 opacity-90">
                 The most hilarious surgery game on the web!
               </p>
             </div>
@@ -60,19 +61,19 @@ export default function Home() {
           <nav className="mt-6 flex flex-wrap items-center justify-center gap-3 text-sm">
             <a
               href="/tips"
-              className="px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 transition-colors"
+              className="min-h-11 px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/35 transition-colors inline-flex items-center"
             >
               Tips &amp; Tricks
             </a>
             <a
               href="/surgery-types"
-              className="px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 transition-colors"
+              className="min-h-11 px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/35 transition-colors inline-flex items-center"
             >
               Surgery Types
             </a>
             <a
               href="/faq"
-              className="px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 transition-colors"
+              className="min-h-11 px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/35 transition-colors inline-flex items-center"
             >
               FAQ
             </a>
@@ -107,14 +108,21 @@ export default function Home() {
       <section className="container mx-auto px-4 py-8">
         <div className="max-w-5xl mx-auto">
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-game-dark mb-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-game-dark mb-2">
               🎮 Play Now - No Download Required!
             </h2>
-            <p className="text-gray-600">
+            <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
               Click fullscreen for the best experience. Use keyboard controls to operate.
             </p>
           </div>
           <GameEmbed />
+        </div>
+      </section>
+
+      {/* Similar Games Section */}
+      <section className="container mx-auto px-4 pb-8">
+        <div className="max-w-6xl mx-auto">
+          <SimilarGames />
         </div>
       </section>
 
