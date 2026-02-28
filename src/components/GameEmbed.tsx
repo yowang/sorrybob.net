@@ -1,6 +1,13 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import * as Sentry from '@sentry/nextjs'
+
+const GAME_SOURCES = [
+  'https://www.miniplay.com/embed/sorry-bob-surgeon-simulator',
+  'https://geometry-games.io/sorry-bob',
+  'https://www.gamenora.com/game/sorry-bob-surgeon-simulator/',
+]
 
 export default function GameEmbed() {
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -9,17 +16,21 @@ export default function GameEmbed() {
   const [currentSource, setCurrentSource] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // Multiple game sources for backup
-  const gameSources = [
-    'https://www.miniplay.com/embed/sorry-bob-surgeon-simulator',
-    'https://geometry-games.io/sorry-bob',
-    'https://www.gamenora.com/game/sorry-bob-surgeon-simulator/',
-  ]
-
   // Timeout detection - 10 seconds
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (isLoading) {
+        Sentry.captureException(new Error('Game iframe load timeout'), {
+          tags: {
+            component: 'GameEmbed',
+            reason: 'iframe_load_timeout',
+          },
+          extra: {
+            sourceIndex: currentSource,
+            sourceUrl: GAME_SOURCES[currentSource],
+            hasFallback: currentSource < GAME_SOURCES.length - 1,
+          },
+        })
         setLoadError(true)
         setIsLoading(false)
       }
@@ -40,12 +51,18 @@ export default function GameEmbed() {
         setIsFullscreen(false)
       }
     } catch (error) {
+      Sentry.captureException(error, {
+        tags: {
+          component: 'GameEmbed',
+          reason: 'fullscreen_toggle_failed',
+        },
+      })
       console.error('Fullscreen error:', error)
     }
   }
 
   const tryNextSource = () => {
-    if (currentSource < gameSources.length - 1) {
+    if (currentSource < GAME_SOURCES.length - 1) {
       setCurrentSource(currentSource + 1)
       setLoadError(false)
       setIsLoading(true)
@@ -53,6 +70,17 @@ export default function GameEmbed() {
   }
 
   const handleIframeError = () => {
+    Sentry.captureException(new Error('Game iframe failed to load'), {
+      tags: {
+        component: 'GameEmbed',
+        reason: 'iframe_load_error',
+      },
+      extra: {
+        sourceIndex: currentSource,
+        sourceUrl: GAME_SOURCES[currentSource],
+        hasFallback: currentSource < GAME_SOURCES.length - 1,
+      },
+    })
     setIsLoading(false)
     setLoadError(true)
   }
@@ -75,7 +103,7 @@ export default function GameEmbed() {
         )}
         <iframe
           key={currentSource}
-          src={gameSources[currentSource]}
+          src={GAME_SOURCES[currentSource]}
           title="Sorry Bob - Surgeon Simulator"
           loading="lazy"
           allow="autoplay; fullscreen; gamepad"
@@ -93,7 +121,7 @@ export default function GameEmbed() {
         </button>
       </div>
       
-      {loadError && currentSource < gameSources.length - 1 && (
+      {loadError && currentSource < GAME_SOURCES.length - 1 && (
         <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl text-center">
           <p className="text-amber-800 mb-2">Game failed to load from this source</p>
           <button
@@ -105,7 +133,7 @@ export default function GameEmbed() {
         </div>
       )}
       
-      {loadError && currentSource === gameSources.length - 1 && (
+      {loadError && currentSource === GAME_SOURCES.length - 1 && (
         <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl text-center">
           <p className="text-red-800 mb-2">Unable to load game. Please try again later.</p>
           <a 
