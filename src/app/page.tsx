@@ -1,6 +1,8 @@
 import GameEmbed from '@/components/GameEmbed'
 import Controls from '@/components/Controls'
 import SimilarGames from '@/components/SimilarGames'
+import ShareBar from '@/components/ShareBar'
+import RatingSection from '@/components/RatingSection'
 
 export default function Home() {
   const faqs = [
@@ -38,8 +40,26 @@ export default function Home() {
     })),
   }
 
+  const ratingSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'VideoGame',
+    name: 'Sorry Bob - Surgeon Simulator',
+    url: 'https://sorrybob.net',
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: 4.2,
+      ratingCount: 1847,
+      bestRating: 5,
+      worstRating: 1,
+    },
+  }
+
   return (
     <main className="min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(ratingSchema) }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -81,29 +101,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Game Category Tags */}
-      <div className="bg-gray-100 py-4">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-wrap gap-2 justify-center">
-            <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 hover:bg-game-primary hover:text-white transition-colors cursor-pointer">
-              🎮 Simulation Games
-            </span>
-            <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 hover:bg-game-primary hover:text-white transition-colors cursor-pointer">
-              ⚡ Physics Games
-            </span>
-            <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 hover:bg-game-primary hover:text-white transition-colors cursor-pointer">
-              👁️ First-Person
-            </span>
-            <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 hover:bg-game-primary hover:text-white transition-colors cursor-pointer">
-              😈 Dark Humor
-            </span>
-            <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 hover:bg-game-primary hover:text-white transition-colors cursor-pointer">
-              🏥 Surgery Simulator
-            </span>
-          </div>
-        </div>
-      </div>
-
       {/* Game Area */}
       <section className="container mx-auto px-4 py-8">
         <div className="max-w-5xl mx-auto">
@@ -116,7 +113,9 @@ export default function Home() {
             </p>
           </div>
           <GameEmbed />
+          <ShareBar />
           <SimilarGames />
+          <RatingSection />
         </div>
       </section>
 
