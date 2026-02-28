@@ -77,10 +77,21 @@ export default function RatingSection() {
 
   // Hydrate from localStorage after mount
   useEffect(() => {
-    // Seed default reviews if first visit
-    const existing = localStorage.getItem('sorrybob_reviews')
-    if (!existing) {
+    // Version-based cache reset: bump DATA_VERSION to clear stale localStorage data
+    const DATA_VERSION = 'v2'
+    const storedVersion = localStorage.getItem('sorrybob_data_version')
+    if (storedVersion !== DATA_VERSION) {
+      localStorage.removeItem('sorrybob_reviews')
+      localStorage.removeItem('sorrybob_user_rating')
+      localStorage.removeItem('sorrybob_rating_stats')
+      localStorage.setItem('sorrybob_data_version', DATA_VERSION)
       setStorage('sorrybob_reviews', DEFAULT_REVIEWS)
+    } else {
+      // Seed default reviews if first visit
+      const existing = localStorage.getItem('sorrybob_reviews')
+      if (!existing) {
+        setStorage('sorrybob_reviews', DEFAULT_REVIEWS)
+      }
     }
 
     setUserRating(getStorage<number>('sorrybob_user_rating', 0))
