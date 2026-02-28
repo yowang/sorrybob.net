@@ -16,21 +16,21 @@ interface RatingStats {
 
 const DEFAULT_REVIEWS: Review[] = [
   {
-    nickname: '手术达人',
+    nickname: 'SurgeryPro',
     rating: 5,
-    content: '太搞笑了！第一次玩不小心把心脏扔到了地上，笑死我了 🤣',
+    content: 'This is hilarious! I accidentally dropped the heart on the floor on my first try 🤣',
     timestamp: Date.now() - 3600000,
   },
   {
-    nickname: 'Bob的克星',
+    nickname: 'BobNemesis',
     rating: 4,
-    content: '控制手感很独特，需要适应一下，但上手后非常有趣！',
+    content: 'The controls feel really unique. Takes a bit to get used to, but super fun once you do!',
     timestamp: Date.now() - 7200000,
   },
   {
-    nickname: '匿名玩家',
+    nickname: 'Anonymous',
     rating: 5,
-    content: '玩了一小时，成功完成了第一次心脏移植！超有成就感！',
+    content: 'Played for an hour and finally completed my first heart transplant! So satisfying!',
     timestamp: Date.now() - 86400000,
   },
 ]
@@ -57,13 +57,13 @@ function setStorage(key: string, value: unknown) {
 function relativeTime(ts: number): string {
   const diff = Math.max(0, Date.now() - ts)
   const seconds = Math.floor(diff / 1000)
-  if (seconds < 60) return `${seconds}秒前`
+  if (seconds < 60) return 'Just now'
   const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}分钟前`
+  if (minutes < 60) return `${minutes} minutes ago`
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}小时前`
+  if (hours < 24) return `${hours} hours ago`
   const days = Math.floor(hours / 24)
-  return `${days}天前`
+  return `${days} days ago`
 }
 
 export default function RatingSection() {
@@ -114,7 +114,7 @@ export default function RatingSection() {
     if (!content.trim()) return
 
     const review: Review = {
-      nickname: nickname.trim() || '匿名玩家',
+      nickname: nickname.trim() || 'Anonymous',
       rating: userRating || 5,
       content: content.trim(),
       timestamp: Date.now(),
@@ -192,14 +192,14 @@ export default function RatingSection() {
           type="text"
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
-          placeholder="你的昵称（可选）"
+          placeholder="Your name (optional)"
           maxLength={20}
           className="w-full sm:w-64 px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-game-primary"
         />
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="分享你的游戏体验..."
+          placeholder="Share your experience..."
           rows={3}
           maxLength={300}
           className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-game-primary"
