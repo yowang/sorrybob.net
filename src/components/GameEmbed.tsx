@@ -34,7 +34,6 @@ export default function GameEmbed() {
   const [isLoading, setIsLoading] = useState(true)
   const [showFullscreenHint, setShowFullscreenHint] = useState(false)
   const [gameStarted, setGameStarted] = useState(false)
-  const [iframeReady, setIframeReady] = useState(false)
   const [loadProgress, setLoadProgress] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
   const loadStartRef = useRef<number>(0)
@@ -81,9 +80,9 @@ export default function GameEmbed() {
     loadStartRef.current = Date.now()
   }, [])
 
-  // --- Progress bar ---
+  // --- Progress bar (only when game started) ---
   useEffect(() => {
-    if (!isLoading) return
+    if (!gameStarted || !isLoading) return
     loadStartRef.current = Date.now()
     setLoadProgress(0)
     const interval = setInterval(() => {
@@ -92,11 +91,11 @@ export default function GameEmbed() {
       setLoadProgress(Math.round(progress))
     }, 200)
     return () => clearInterval(interval)
-  }, [isLoading])
+  }, [gameStarted, isLoading])
 
-  // --- Timeout detection (no auto-switch, just show error after 60s) ---
+  // --- Timeout detection ---
   useEffect(() => {
-    if (!isLoading) return
+    if (!gameStarted || !isLoading) return
     const timeout = setTimeout(() => {
       Sentry.captureException(new Error('Game iframe load timeout'), {
         tags: { component: 'GameEmbed', reason: 'iframe_load_timeout' },
@@ -161,28 +160,27 @@ export default function GameEmbed() {
 
   const handleIframeLoad = () => {
     setIsLoading(false)
-    setIframeReady(true)
     setLoadProgress(100)
   }
 
   return (
     <div className="game-stage">
       <div ref={containerRef} className="game-container">
-        {/* iframe always renders (loads in background), hidden until user clicks Play */}
-        <iframe
-          src={GAME_SOURCE}
-          title="Sorry Bob - Surgeon Simulator"
-          allow="autoplay; fullscreen; gamepad"
-          allowFullScreen
-          className={`border-0 absolute top-0 left-0 w-full h-full transition-opacity duration-300 ${
-            gameStarted && iframeReady ? 'opacity-100' : 'opacity-0 pointer-events-none'
-          }`}
-          onLoad={handleIframeLoad}
-          onError={handleIframeError}
-        />
+        {/* iframe only loads after user clicks Play */}
+        {gameStarted && (
+          <iframe
+            src={GAME_SOURCE}
+            title="Sorry Bob - Surgeon Simulator"
+            allow="autoplay; fullscreen; gamepad"
+            allowFullScreen
+            className="border-0 absolute top-0 left-0 w-full h-full"
+            onLoad={handleIframeLoad}
+            onError={handleIframeError}
+          />
+        )}
 
         {/* Overlay: Play button (before user clicks) */}
-        {!gameStarted && !loadError && (
+        {!gameStarted && (
           <div
             className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 z-10 cursor-pointer"
             onClick={handleStartGame}
@@ -190,22 +188,11 @@ export default function GameEmbed() {
             <div className="text-center">
               <div className="text-6xl mb-4">🔪</div>
               <h2 className="text-2xl font-bold text-white mb-2">Sorry Bob - Surgeon Simulator</h2>
-              {iframeReady ? (
-                <p className="text-green-400 mb-6">✓ Game ready — click to play!</p>
-              ) : (
-                <p className="text-gray-400 mb-6">
-                  <span className="inline-block animate-pulse mr-1">⏳</span>
-                  Pre-loading game...
-                </p>
-              )}
+              <p className="text-gray-300 mb-6">Click to start playing!</p>
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); handleStartGame(); }}
-                className={`px-8 py-4 text-white text-lg font-bold rounded-xl active:scale-95 transition-all shadow-lg ${
-                  iframeReady
-                    ? 'bg-green-500 hover:bg-green-600 shadow-green-500/30'
-                    : 'bg-game-primary hover:bg-opacity-90 shadow-game-primary/30'
-                }`}
+                className="px-8 py-4 bg-game-primary text-white text-lg font-bold rounded-xl hover:bg-opacity-90 active:scale-95 transition-all shadow-lg shadow-game-primary/30"
               >
                 ▶ Play Now
               </button>
@@ -213,8 +200,8 @@ export default function GameEmbed() {
           </div>
         )}
 
-        {/* Overlay: Loading progress (user clicked Play but iframe not ready) */}
-        {gameStarted && !iframeReady && !loadError && (
+        {/* Overlay: Loading progress (user clicked Play, waiting for iframe) */}
+        {gameStarted && isLoading && !loadError && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 z-10">
             <div className="text-center">
               <div className="text-4xl mb-4 animate-pulse">🔪</div>
