@@ -1,0 +1,182 @@
+name: Lighthouse CI
+
+on:
+  schedule:
+    # Run daily at 00:00 UTC (08:00 Beijing time)
+    - cron: '0 0 * * *'
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.13.x
+
+      - name: Run Lighthouse CI
+        run: |
+          lhci autorun --upload.target=temporary-public-storage || true
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Generate Lighthouse Report
+        id: lighthouse_report
+        run: |
+          # Run Lighthouse on production URL
+          npm install -g lighthouse
+          
+          echo "Running Lighthouse on https://sorrybob.net..."
+          lighthouse https://sorrybob.net \
+            --output=json \
+            --output-path=./lighthouse-report.json \
+            --chrome-flags="--headless --no-sandbox" \
+            --only-categories=performance,accessibility,best-practices,seo || true
+          
+          # Extract scores
+          if [ -f ./lighthouse-report.json ]; then
+            PERFORMANCE=$(cat ./lighthouse-report.json | jq -r '.categories.performance.score // 0' | awk '{printf "%.0f", $1 * 100}')
+            ACCESSIBILITY=$(cat ./lighthouse-report.json | jq -r '.categories.accessibility.score // 0' | awk '{printf "%.0f", $1 * 100}')
+            BEST_PRACTICES=$(cat ./lighthouse-report.json | jq -r '.categories["best-practices"].score // 0' | awk '{printf "%.0f", $1 * 100}')
+            SEO=$(cat ./lighthouse-report.json | jq -r '.categories.seo.score // 0' | awk '{printf "%.0f", $1 * 100}')
+            
+            echo "📊 Lighthouse Scores:"
+            echo "  Performance:    ${PERFORMANCE}/100"
+            echo "  Accessibility:  ${ACCESSIBILITY}/100"
+            echo "  Best Practices: ${BEST_PRACTICES}/100"
+            echo "  SEO:            ${SEO}/100"
+            
+            # Check thresholds
+            echo ""
+            echo "Checking thresholds..."
+            
+            PASS=true
+            if [ "$PERFORMANCE" -lt 80 ]; then
+              echo "❌ Performance score ${PERFORMANCE} is below threshold (80)"
+              PASS=false
+            else
+              echo "✅ Performance score ${PERFORMANCE} meets threshold (80)"
+            fi
+            
+            if [ "$ACCESSIBILITY" -lt 90 ]; then
+              echo "❌ Accessibility score ${ACCESSIBILITY} is below threshold (90)"
+              PASS=false
+            else
+              echo "✅ Accessibility score ${ACCESSIBILITY} meets threshold (90)"
+            fi
+            
+            if [ "$BEST_PRACTICES" -lt 90 ]; then
+              echo "❌ Best Practices score ${BEST_PRACTICES} is below threshold (90)"
+              PASS=false
+            else
+              echo "✅ Best Practices score ${BEST_PRACTICES} meets threshold (90)"
+            fi
+            
+            if [ "$SEO" -lt 90 ]; then
+              echo "❌ SEO score ${SEO} is below threshold (90)"
+              PASS=false
+            else
+              echo "✅ SEO score ${SEO} meets threshold (90)"
+            fi
+            
+            # Set output for GitHub Actions
+            echo "performance=${PERFORMANCE}" >> $GITHUB_OUTPUT
+            echo "accessibility=${ACCESSIBILITY}" >> $GITHUB_OUTPUT
+            echo "best_practices=${BEST_PRACTICES}" >> $GITHUB_OUTPUT
+            echo "seo=${SEO}" >> $GITHUB_OUTPUT
+            
+            if [ "$PASS" = true ]; then
+              echo ""
+              echo "✅ All Lighthouse checks passed!"
+            else
+              echo ""
+              echo "⚠️ Some Lighthouse checks failed, but continuing..."
+            fi
+          else
+            echo "⚠️ Lighthouse report not generated"
+            echo "performance=0" >> $GITHUB_OUTPUT
+            echo "accessibility=0" >> $GITHUB_OUTPUT
+            echo "best_practices=0" >> $GITHUB_OUTPUT
+            echo "seo=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload Lighthouse Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-report
+          path: ./lighthouse-report.json
+          retention-days: 30
+
+      - name: Create Lighthouse Summary
+        if: always()
+        run: |
+          echo "## 📊 Lighthouse Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Category | Score | Threshold | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f ./lighthouse-report.json ]; then
+            PERFORMANCE=$(cat ./lighthouse-report.json | jq -r '.categories.performance.score // 0' | awk '{printf "%.0f", $1 * 100}')
+            ACCESSIBILITY=$(cat ./lighthouse-report.json | jq -r '.categories.accessibility.score // 0' | awk '{printf "%.0f", $1 * 100}')
+            BEST_PRACTICES=$(cat ./lighthouse-report.json | jq -r '.categories["best-practices"].score // 0' | awk '{printf "%.0f", $1 * 100}')
+            SEO=$(cat ./lighthouse-report.json | jq -r '.categories.seo.score // 0' | awk '{printf "%.0f", $1 * 100}')
+            
+            # Performance
+            if [ "$PERFORMANCE" -ge 80 ]; then
+              PERF_STATUS="✅"
+            else
+              PERF_STATUS="❌"
+            fi
+            echo "| Performance | ${PERFORMANCE}/100 | 80 | ${PERF_STATUS} |" >> $GITHUB_STEP_SUMMARY
+            
+            # Accessibility
+            if [ "$ACCESSIBILITY" -ge 90 ]; then
+              ACC_STATUS="✅"
+            else
+              ACC_STATUS="❌"
+            fi
+            echo "| Accessibility | ${ACCESSIBILITY}/100 | 90 | ${ACC_STATUS} |" >> $GITHUB_STEP_SUMMARY
+            
+            # Best Practices
+            if [ "$BEST_PRACTICES" -ge 90 ]; then
+              BP_STATUS="✅"
+            else
+              BP_STATUS="❌"
+            fi
+            echo "| Best Practices | ${BEST_PRACTICES}/100 | 90 | ${BP_STATUS} |" >> $GITHUB_STEP_SUMMARY
+            
+            # SEO
+            if [ "$SEO" -ge 90 ]; then
+              SEO_STATUS="✅"
+            else
+              SEO_STATUS="❌"
+            fi
+            echo "| SEO | ${SEO}/100 | 90 | ${SEO_STATUS} |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| All | N/A | - | ⚠️ Report not generated |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Test URL:** https://sorrybob.net" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY

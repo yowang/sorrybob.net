@@ -76,16 +76,24 @@ export default function RootLayout({
       </head>
       <body>
         {children}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-PLCH5KVGLT"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics-lazy" strategy="lazyOnload">
           {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-PLCH5KVGLT');
+            function loadGA() {
+              var s = document.createElement('script');
+              s.src = 'https://www.googletagmanager.com/gtag/js?id=G-PLCH5KVGLT';
+              s.async = true;
+              document.head.appendChild(s);
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              window.gtag = gtag;
+              gtag('js', new Date());
+              gtag('config', 'G-PLCH5KVGLT');
+            }
+            if ('requestIdleCallback' in window) {
+              requestIdleCallback(loadGA, { timeout: 5000 });
+            } else {
+              setTimeout(loadGA, 3000);
+            }
           `}
         </Script>
       </body>

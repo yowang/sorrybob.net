@@ -1,0 +1,26 @@
+{
+  "date": "2026-02-26T03:18:07.947Z",
+  "results": [
+    {
+      "name": "KBH Games",
+      "url": "https://kbhgames.com",
+      "status": 200,
+      "loadTime": 656,
+      "timestamp": "2026-02-26T03:18:07.398Z"
+    },
+    {
+      "name": "Crazy Games",
+      "url": "https://www.crazygames.com",
+      "status": 200,
+      "loadTime": 443,
+      "timestamp": "2026-02-26T03:18:07.196Z"
+    },
+    {
+      "name": "Zap Games",
+      "url": "https://zapgames.io",
+      "status": 200,
+      "loadTime": 1193,
+      "timestamp": "2026-02-26T03:18:07.946Z"
+    }
+  ]
+}
