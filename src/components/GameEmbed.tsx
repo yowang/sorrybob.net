@@ -3,17 +3,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import * as Sentry from '@sentry/nextjs'
 
-const GAME_SOURCES = [
-  'https://www.miniplay.com/embed/sorry-bob-surgeon-simulator',
-  'https://geometry-games.io/sorry-bob',
-  'https://www.gamenora.com/game/sorry-bob-surgeon-simulator/',
-]
-
-const SOURCE_ORIGINS = GAME_SOURCES.map((url) => new URL(url).origin)
+// Fixed source - miniplay is the only reliable one
+const GAME_SOURCE = 'https://www.miniplay.com/embed/sorry-bob-surgeon-simulator'
+const GAME_ORIGIN = new URL(GAME_SOURCE).origin
 
 const FULLSCREEN_HINT_KEY = 'sorrybob-fullscreen-hint-seen'
-const FASTEST_SOURCE_KEY = 'sorrybob-fastest-source'
-const LOAD_TIMEOUT_MS = 15000
+const LOAD_TIMEOUT_MS = 60000 // 60 seconds - give it plenty of time
 
 type FullscreenCapableElement = HTMLDivElement & {
   webkitRequestFullscreen?: () => Promise<void> | void
@@ -33,38 +28,16 @@ function injectPreconnect(origin: string) {
   document.head.appendChild(link)
 }
 
-function getOrderedSources(): number[] {
-  if (typeof window === 'undefined') return [0, 1, 2]
-  try {
-    const fastest = window.localStorage.getItem(FASTEST_SOURCE_KEY)
-    if (fastest !== null) {
-      const idx = parseInt(fastest, 10)
-      if (idx >= 0 && idx < GAME_SOURCES.length) {
-        const order = [idx]
-        for (let i = 0; i < GAME_SOURCES.length; i++) {
-          if (i !== idx) order.push(i)
-        }
-        return order
-      }
-    }
-  } catch {}
-  return [0, 1, 2]
-}
-
 export default function GameEmbed() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [loadError, setLoadError] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [sourceOrder] = useState<number[]>(getOrderedSources)
-  const [sourceIndex, setSourceIndex] = useState(0)
   const [showFullscreenHint, setShowFullscreenHint] = useState(false)
   const [gameStarted, setGameStarted] = useState(false)
-  const [iframeReady, setIframeReady] = useState(false) // iframe loaded in background
+  const [iframeReady, setIframeReady] = useState(false)
   const [loadProgress, setLoadProgress] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
   const loadStartRef = useRef<number>(0)
-
-  const currentSource = sourceOrder[sourceIndex]
 
   // --- Fullscreen hint ---
   const dismissFullscreenHint = () => {
@@ -102,13 +75,13 @@ export default function GameEmbed() {
     }
   }, [])
 
-  // --- Background preload: start loading iframe after page is idle ---
+  // --- Preconnect on mount ---
   useEffect(() => {
-    SOURCE_ORIGINS.forEach(injectPreconnect)
+    injectPreconnect(GAME_ORIGIN)
     loadStartRef.current = Date.now()
   }, [])
 
-  // --- Progress bar (runs from mount since iframe loads immediately) ---
+  // --- Progress bar ---
   useEffect(() => {
     if (!isLoading) return
     loadStartRef.current = Date.now()
@@ -119,45 +92,24 @@ export default function GameEmbed() {
       setLoadProgress(Math.round(progress))
     }, 200)
     return () => clearInterval(interval)
-  }, [isLoading, sourceIndex])
+  }, [isLoading])
 
-  // --- Auto-advance to next source on failure ---
-  const advanceSource = useCallback(() => {
-    if (sourceIndex < GAME_SOURCES.length - 1) {
-      setSourceIndex((prev) => prev + 1)
-      setLoadError(false)
-      setIsLoading(true)
-      setIframeReady(false)
-      setLoadProgress(0)
-    } else {
-      setLoadError(true)
-      setIsLoading(false)
-    }
-  }, [sourceIndex])
-
-  // --- Timeout detection ---
+  // --- Timeout detection (no auto-switch, just show error after 60s) ---
   useEffect(() => {
     if (!isLoading) return
     const timeout = setTimeout(() => {
       Sentry.captureException(new Error('Game iframe load timeout'), {
         tags: { component: 'GameEmbed', reason: 'iframe_load_timeout' },
-        extra: {
-          sourceIndex: currentSource,
-          sourceUrl: GAME_SOURCES[currentSource],
-          hasFallback: sourceIndex < GAME_SOURCES.length - 1,
-        },
+        extra: { sourceUrl: GAME_SOURCE },
       })
-      advanceSource()
+      setLoadError(true)
+      setIsLoading(false)
     }, LOAD_TIMEOUT_MS)
     return () => clearTimeout(timeout)
-  }, [currentSource, isLoading, sourceIndex, advanceSource])
+  }, [isLoading])
 
   const handleStartGame = useCallback(() => {
     setGameStarted(true)
-  }, [])
-
-  const handlePlayHover = useCallback(() => {
-    SOURCE_ORIGINS.forEach(injectPreconnect)
   }, [])
 
   // --- Fullscreen ---
@@ -176,7 +128,7 @@ export default function GameEmbed() {
   }
 
   const openSourceFallback = () => {
-    window.open(GAME_SOURCES[currentSource], '_blank', 'noopener,noreferrer')
+    window.open(GAME_SOURCE, '_blank', 'noopener,noreferrer')
   }
 
   const toggleFullscreen = async () => {
@@ -192,7 +144,7 @@ export default function GameEmbed() {
     } catch (error) {
       Sentry.captureException(error, {
         tags: { component: 'GameEmbed', reason: 'fullscreen_toggle_failed' },
-        extra: { sourceIndex: currentSource, sourceUrl: GAME_SOURCES[currentSource] },
+        extra: { sourceUrl: GAME_SOURCE },
       })
       if (!isDocFS) openSourceFallback()
     }
@@ -201,35 +153,24 @@ export default function GameEmbed() {
   const handleIframeError = () => {
     Sentry.captureException(new Error('Game iframe failed to load'), {
       tags: { component: 'GameEmbed', reason: 'iframe_load_error' },
-      extra: {
-        sourceIndex: currentSource,
-        sourceUrl: GAME_SOURCES[currentSource],
-        hasFallback: sourceIndex < GAME_SOURCES.length - 1,
-      },
+      extra: { sourceUrl: GAME_SOURCE },
     })
-    advanceSource()
+    setIsLoading(false)
+    setLoadError(true)
   }
 
   const handleIframeLoad = () => {
     setIsLoading(false)
     setIframeReady(true)
     setLoadProgress(100)
-    try { window.localStorage.setItem(FASTEST_SOURCE_KEY, String(currentSource)) } catch {}
   }
-
-  // Determine what overlay to show
-  // - Not started + iframe not ready: show Play button with loading hint
-  // - Not started + iframe ready: show Play button (instant play)
-  // - Started + loading: show progress bar
-  // - Started + ready: show nothing (game visible)
 
   return (
     <div className="game-stage">
       <div ref={containerRef} className="game-container">
         {/* iframe always renders (loads in background), hidden until user clicks Play */}
         <iframe
-          key={currentSource}
-          src={GAME_SOURCES[currentSource]}
+          src={GAME_SOURCE}
           title="Sorry Bob - Surgeon Simulator"
           allow="autoplay; fullscreen; gamepad"
           allowFullScreen
@@ -241,7 +182,7 @@ export default function GameEmbed() {
         />
 
         {/* Overlay: Play button (before user clicks) */}
-        {!gameStarted && (
+        {!gameStarted && !loadError && (
           <div
             className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 z-10 cursor-pointer"
             onClick={handleStartGame}
@@ -260,8 +201,6 @@ export default function GameEmbed() {
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); handleStartGame(); }}
-                onMouseEnter={handlePlayHover}
-                onTouchStart={handlePlayHover}
                 className={`px-8 py-4 text-white text-lg font-bold rounded-xl active:scale-95 transition-all shadow-lg ${
                   iframeReady
                     ? 'bg-green-500 hover:bg-green-600 shadow-green-500/30'
@@ -287,12 +226,6 @@ export default function GameEmbed() {
                 />
               </div>
               <p className="text-gray-400 text-sm">{loadProgress}%</p>
-              <p className="text-gray-500 text-xs mt-3">
-                Source {sourceIndex + 1}/{GAME_SOURCES.length}: {new URL(GAME_SOURCES[currentSource]).hostname}
-              </p>
-              {sourceIndex > 0 && (
-                <p className="text-yellow-400 text-xs mt-1">Switching to backup source...</p>
-              )}
             </div>
           </div>
         )}
@@ -320,11 +253,10 @@ export default function GameEmbed() {
 
       {loadError && (
         <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl text-center">
-          <p className="text-red-800 mb-2">All {GAME_SOURCES.length} game sources failed to load.</p>
+          <p className="text-red-800 mb-2">Game failed to load. Please try again.</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-3">
             <button
               onClick={() => {
-                setSourceIndex(0)
                 setLoadError(false)
                 setIsLoading(true)
                 setIframeReady(false)
@@ -332,7 +264,7 @@ export default function GameEmbed() {
               }}
               className="touch-action-btn px-4 py-3 bg-game-primary text-white rounded-lg hover:bg-opacity-90 active:scale-95 transition-all"
             >
-              🔄 Retry All Sources
+              🔄 Retry
             </button>
             <a href="https://kbhgames.com/game/sorry-bob" target="_blank" rel="noopener noreferrer" className="px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
               Play on KBHGames instead →

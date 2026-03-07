@@ -52,12 +52,9 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/logo.svg" />
-        {/* Preconnect to game sources for faster iframe loading */}
+        {/* Preconnect to game source for faster iframe loading */}
         <link rel="dns-prefetch" href="https://www.miniplay.com" />
-        <link rel="dns-prefetch" href="https://geometry-games.io" />
-        <link rel="dns-prefetch" href="https://www.gamenora.com" />
         <link rel="preconnect" href="https://www.miniplay.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://geometry-games.io" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <script
           type="application/ld+json"
