@@ -2,8 +2,17 @@
 const nextConfig = {
   output: 'export',
   trailingSlash: true,
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
   images: {
     unoptimized: true,
+  },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
+  },
+  experimental: {
+    optimizeCss: false, // requires critters, skip for now
   },
   headers: async () => [
     {
