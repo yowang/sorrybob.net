@@ -25,6 +25,7 @@ export default function GameEmbed() {
   const [isLoading, setIsLoading] = useState(true)
   const [currentSource, setCurrentSource] = useState(0)
   const [showFullscreenHint, setShowFullscreenHint] = useState(false)
+  const [gameStarted, setGameStarted] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const dismissFullscreenHint = () => {
@@ -198,25 +199,43 @@ export default function GameEmbed() {
   return (
     <div className="game-stage">
       <div ref={containerRef} className="game-container">
-        {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+        {!gameStarted ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 z-10 cursor-pointer" onClick={() => setGameStarted(true)}>
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-game-primary mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading game...</p>
+              <div className="text-6xl mb-4">🔪</div>
+              <h2 className="text-2xl font-bold text-white mb-2">Sorry Bob - Surgeon Simulator</h2>
+              <p className="text-gray-300 mb-6">Click to start playing!</p>
+              <button 
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setGameStarted(true); }}
+                className="px-8 py-4 bg-game-primary text-white text-lg font-bold rounded-xl hover:bg-opacity-90 active:scale-95 transition-all shadow-lg shadow-game-primary/30"
+              >
+                ▶ Play Now
+              </button>
             </div>
           </div>
+        ) : (
+          <>
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-game-primary mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading game...</p>
+                </div>
+              </div>
+            )}
+            <iframe
+              key={currentSource}
+              src={GAME_SOURCES[currentSource]}
+              title="Sorry Bob - Surgeon Simulator"
+              allow="autoplay; fullscreen; gamepad"
+              allowFullScreen
+              className="border-0 absolute top-0 left-0 w-full h-full"
+              onLoad={handleIframeLoad}
+              onError={handleIframeError}
+            />
+          </>
         )}
-        <iframe
-          key={currentSource}
-          src={GAME_SOURCES[currentSource]}
-          title="Sorry Bob - Surgeon Simulator"
-          loading="lazy"
-          allow="autoplay; fullscreen; gamepad"
-          allowFullScreen
-          className="border-0 absolute top-0 left-0 w-full h-full"
-          onLoad={handleIframeLoad}
-          onError={handleIframeError}
-        />
       </div>
 
       <div className="fullscreen-overlay">
