@@ -125,25 +125,36 @@ export default function GameEmbed() {
     return () => clearInterval(interval)
   }, [gameStarted, isLoading, sourceIndex])
 
-  // Timeout detection
+  // Auto-advance to next source on failure
+  const advanceSource = useCallback(() => {
+    if (sourceIndex < GAME_SOURCES.length - 1) {
+      setSourceIndex((prev) => prev + 1)
+      setLoadError(false)
+      setIsLoading(true)
+      setLoadProgress(0)
+    } else {
+      // All sources exhausted
+      setLoadError(true)
+      setIsLoading(false)
+    }
+  }, [sourceIndex])
+
+  // Timeout detection — auto-fallback instead of showing error
   useEffect(() => {
-    if (!gameStarted) return
+    if (!gameStarted || !isLoading) return
     const timeout = setTimeout(() => {
-      if (isLoading) {
-        Sentry.captureException(new Error('Game iframe load timeout'), {
-          tags: { component: 'GameEmbed', reason: 'iframe_load_timeout' },
-          extra: {
-            sourceIndex: currentSource,
-            sourceUrl: GAME_SOURCES[currentSource],
-            hasFallback: sourceIndex < GAME_SOURCES.length - 1,
-          },
-        })
-        setLoadError(true)
-        setIsLoading(false)
-      }
+      Sentry.captureException(new Error('Game iframe load timeout'), {
+        tags: { component: 'GameEmbed', reason: 'iframe_load_timeout' },
+        extra: {
+          sourceIndex: currentSource,
+          sourceUrl: GAME_SOURCES[currentSource],
+          hasFallback: sourceIndex < GAME_SOURCES.length - 1,
+        },
+      })
+      advanceSource()
     }, LOAD_TIMEOUT_MS)
     return () => clearTimeout(timeout)
-  }, [currentSource, isLoading, gameStarted, sourceIndex])
+  }, [currentSource, isLoading, gameStarted, sourceIndex, advanceSource])
 
   // Preconnect to all game sources when user hovers the play button
   const handlePlayHover = useCallback(() => {
@@ -194,15 +205,6 @@ export default function GameEmbed() {
     }
   }
 
-  const tryNextSource = () => {
-    if (sourceIndex < GAME_SOURCES.length - 1) {
-      setSourceIndex(sourceIndex + 1)
-      setLoadError(false)
-      setIsLoading(true)
-      setLoadProgress(0)
-    }
-  }
-
   const handleIframeError = () => {
     Sentry.captureException(new Error('Game iframe failed to load'), {
       tags: { component: 'GameEmbed', reason: 'iframe_load_error' },
@@ -212,8 +214,8 @@ export default function GameEmbed() {
         hasFallback: sourceIndex < GAME_SOURCES.length - 1,
       },
     })
-    setIsLoading(false)
-    setLoadError(true)
+    // Auto-fallback to next source
+    advanceSource()
   }
 
   const handleIframeLoad = () => {
@@ -264,8 +266,13 @@ export default function GameEmbed() {
                   </div>
                   <p className="text-gray-400 text-sm">{loadProgress}%</p>
                   <p className="text-gray-500 text-xs mt-3">
-                    Source: {new URL(GAME_SOURCES[currentSource]).hostname}
+                    Source {sourceIndex + 1}/{GAME_SOURCES.length}: {new URL(GAME_SOURCES[currentSource]).hostname}
                   </p>
+                  {sourceIndex > 0 && (
+                    <p className="text-yellow-400 text-xs mt-1">
+                      Switching to backup source...
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -312,29 +319,32 @@ export default function GameEmbed() {
         </button>
       </div>
 
-      {loadError && sourceIndex < GAME_SOURCES.length - 1 && (
-        <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl text-center">
-          <p className="text-amber-800 mb-2">Game failed to load from this source</p>
-          <button
-            onClick={tryNextSource}
-            className="touch-action-btn px-4 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:bg-amber-700 transition-colors"
-          >
-            Try Alternative Source
-          </button>
-        </div>
-      )}
-
-      {loadError && sourceIndex === GAME_SOURCES.length - 1 && (
+      {loadError && (
         <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl text-center">
-          <p className="text-red-800 mb-2">Unable to load game. Please try again later.</p>
-          <a
-            href="https://kbhgames.com/game/sorry-bob"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-red-600 underline hover:text-red-800"
-          >
-            Play on KBHGames instead →
-          </a>
+          <p className="text-red-800 mb-2">
+            All {GAME_SOURCES.length} game sources failed to load.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-3">
+            <button
+              onClick={() => {
+                setSourceIndex(0)
+                setLoadError(false)
+                setIsLoading(true)
+                setLoadProgress(0)
+              }}
+              className="touch-action-btn px-4 py-3 bg-game-primary text-white rounded-lg hover:bg-opacity-90 active:scale-95 transition-all"
+            >
+              🔄 Retry All Sources
+            </button>
+            <a
+              href="https://kbhgames.com/game/sorry-bob"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+            >
+              Play on KBHGames instead →
+            </a>
+          </div>
         </div>
       )}
     </div>
