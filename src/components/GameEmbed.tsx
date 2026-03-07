@@ -8,7 +8,7 @@ const GAME_SOURCE = 'https://www.miniplay.com/embed/sorry-bob-surgeon-simulator'
 const GAME_ORIGIN = new URL(GAME_SOURCE).origin
 
 const FULLSCREEN_HINT_KEY = 'sorrybob-fullscreen-hint-seen'
-const LOAD_TIMEOUT_MS = 60000 // 60 seconds - give it plenty of time
+const LOAD_TIMEOUT_MS = 300000 // 300 seconds (5 min)
 
 type FullscreenCapableElement = HTMLDivElement & {
   webkitRequestFullscreen?: () => Promise<void> | void
