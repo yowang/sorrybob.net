@@ -76,6 +76,13 @@ export default function RootLayout({
       </head>
       <body>
         {children}
+        <Script id="sw-register" strategy="lazyOnload">
+          {`
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.register('/sw.js').catch(function(){});
+            }
+          `}
+        </Script>
         <Script id="google-analytics-lazy" strategy="lazyOnload">
           {`
             function loadGA() {
